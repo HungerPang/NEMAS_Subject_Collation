@@ -1,10 +1,6 @@
 import re
-from .column import Column
+from .input_column import InputColumn
 from src.enums import ColumnDataType
-
-SINGLE_DIGIT = '[\d]{1}'
-DOUBLE_DIGIT = '[\d]{1,2}'
-TRIPLE_DIGIT = '[\d]{1,3}'
 
 
 class SubjectFileTemplate():
@@ -12,11 +8,20 @@ class SubjectFileTemplate():
         self._columns = {}
         self._block_column_name = None
         self._trial_column_name = None
+        self._name_shape = None
 
-    def add_column(self, name=None, data_type=None, value_shape=None):
+    def add_subject_name_shape(self, name_shape=None):
+        if type(name_shape) is not str:
+            raise TypeError('Subject name shape must be a string')
+        else:
+            try:
+                self._name_shape = re.compile(name_shape)
+            except Exception as e:
+               raise ValueError('Bad regex input for subject name shape').with_traceback(e)
+
+    def add_column(self, name=None, data_type=None, value_shape=None, replace_values=[]):
         if type(name) is str and type(data_type) is ColumnDataType:
-            new_column = Column(name, data_type, value_shape)
-            self._columns[name] = new_column
+            self._columns[name] = InputColumn(name, data_type, value_shape, replace_values)
         elif type(name) is str:
             raise TypeError('Column data type must be set to a ColumnDataType')
         else:
@@ -60,6 +65,20 @@ class SubjectFileTemplate():
     @property
     def columns(self):
         return self._columns
+
+    def matches_name_shape(self, val):
+        return self._name_shape.search(val)
+
+    def extract_subject_id(self, val):
+        match = self._name_shape.search(val)
+        if match:
+            if match.group('SubjectId'):
+                return match.group('SubjectId')
+            else:
+                raise ValueError("Subject name shape doesnt contain the Subject id block, which is to say"
+                                 " the name shape doesnt contain a capture block named SubjectId")
+        else:
+            raise ValueError('No match found while extracting subject id')
 
     def verify(self):
         if not self._block_column_name or not self._trial_column_name:

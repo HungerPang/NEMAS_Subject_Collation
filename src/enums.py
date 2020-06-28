@@ -5,3 +5,10 @@ class ColumnDataType(Enum):
     NUMBER = 2
     CORRECTNESS = 3
     ENUM = 4
+
+
+class OtherDataValues(Enum):
+    NONE = 'None'
+    NR = 'NR'
+    CATCH = 'Catch'
+    NOTHING = 'nothing'
