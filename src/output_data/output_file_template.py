@@ -29,4 +29,5 @@ class OutputFileTemplate:
             self._ouput_data[name] += [column.process_data(subject_file)]
 
     def write(self):
-        return self._ouput_data
+        data_frame = DataFrame(data=self._ouput_data)
+        data_frame.to_csv(self._output_file_name, index=False)

@@ -5,6 +5,7 @@ from src.subject_data.subject_file_template import SubjectFileTemplate
 from src.util import SINGLE_DIGIT, DOUBLE_DIGIT, NAME_END, MONTH_STRING, YYYY, TIME, DD, SUBJECT_ID
 from src.subject_data.subject_file_factory import SubjectFileFactory
 from src.output_data.output_file_template import OutputFileTemplate
+from src.collator import Collator
 
 from src.aggregation_functions.accuracy import accuracy
 
@@ -18,15 +19,12 @@ def main():
     input_template.add_column(name='Stim', data_type=ColumnDataType.STRING, replace_values=[OtherDataValues.CATCH])
     input_template.add_column(name='rt', data_type=ColumnDataType.NUMBER, replace_values=[OtherDataValues.CATCH])
 
-    factory = SubjectFileFactory(input_template)
-    subject_file = factory.make_subject_file('C:/Users/anyst/Downloads/ETEMP1_fMRI_v2.2 229_2018_May_23_1601_RespRecoded.csv')
-    vals = subject_file['Trial']
-    cols = [col for col in subject_file]
-
-    output_template = OutputFileTemplate('temp')
+    output_template = OutputFileTemplate('C:/Users/anyst/colaltion_test.csv')
     output_template.add_column(name='fcff_accuracy', aggregation_function=accuracy, aggregation_args=['resp', 'Stim'])
 
-    output_template.add_subject_data(subject_file)
-    der = output_template.write()
-    pass
+    collator = Collator()
+    collator.set_output_file_template(output_file_template=output_template)
+    collator.set_subject_file_template(subject_file_template=input_template)
+    collator.add_subject_file_location('C:/Users/anyst/collation_daters')
+    collator.collate()
 main()
